@@ -43,7 +43,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
     // register cell
     if (_cellClassName) {
         [_collectionView registerClass:NSClassFromString(_cellClassName) forCellWithReuseIdentifier:ReuseIdentifier];
-    }else{// xib
+    }
+    
+    if (_xibName) {// xib
         [_collectionView registerNib:[UINib nibWithNibName:_xibName bundle:nil] forCellWithReuseIdentifier:ReuseIdentifier];
     }
     
@@ -222,8 +224,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
 
     SPBaseCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:ReuseIdentifier forIndexPath:indexPath];
-    cell.data = self.datas[[self getRealShownIndex:indexPath.item]];
-    
+    cell.data = self.datas[_needAutoScroll?[self getRealShownIndex:indexPath.item]:indexPath.item];
     return cell;
 
 }
@@ -237,9 +238,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
 #pragma mark - delegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    self.selectIndex?self.selectIndex(indexPath.row):nil;
+    self.selectIndex?self.selectIndex(indexPath.item):nil;
     if ([self.delegate respondsToSelector:@selector(easyCollectionView:didSelectItemAtIndex:)]) {
-        [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:indexPath.row];
+        [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:indexPath.item];
     }
     
 }
