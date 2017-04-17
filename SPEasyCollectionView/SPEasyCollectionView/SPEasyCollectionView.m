@@ -47,7 +47,6 @@ NSString  * const ReuseIdentifier = @"SPCell";
     if (_cellClassName) {
         [_collectionView registerClass:NSClassFromString(_cellClassName) forCellWithReuseIdentifier:ReuseIdentifier];
     }
-    
     if (_xibName) {// xib
         [_collectionView registerNib:[UINib nibWithNibName:_xibName bundle:nil] forCellWithReuseIdentifier:ReuseIdentifier];
     }
@@ -67,7 +66,65 @@ NSString  * const ReuseIdentifier = @"SPCell";
     
 }
 
+#pragma mark - chain calls
+- (SPEasyCollectionViewinset)sp_inset{
+    return ^SPEasyCollectionView *(UIEdgeInsets(^inset)()){
+        self.inset = inset();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewItemSize)sp_itemsize{
+    return ^SPEasyCollectionView *(CGSize(^itemSize)()){
+        self.itemSize = itemSize();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewMinLineSpace)sp_minLineSpace{
+    return ^SPEasyCollectionView *(NSInteger(^minLineSpace)()){
+        self.minLineSpace = minLineSpace();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewMinInterItemSpace)sp_minInterItemSpace{
+    return ^SPEasyCollectionView *(NSInteger(^minInterItemSpace)()){
+        self.minInterItemSpace = minInterItemSpace();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewScrollDirection)sp_scollDirection{
+    return ^SPEasyCollectionView *(SPEasyScrollDirection(^direction)()){
+        self.scrollDirection = direction();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewDelegate)sp_delegate{
+    return ^SPEasyCollectionView *(id(^delegate)()){
+        self.delegate = delegate();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewCellXibName)sp_xibName{
+    return ^SPEasyCollectionView *(NSString *(^xibName)()){
+        self.xibName = xibName();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewCellClassName)sp_cellClassName{
+    return ^SPEasyCollectionView *(NSString *(^className)()){
+        self.cellClassName = className();
+        return self;
+    };
+}
+
 #pragma mark - properties
+
 - (void)setNeedAutoScroll:(BOOL)needAutoScroll{
     _needAutoScroll = needAutoScroll;
     
@@ -118,6 +175,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
     _scrollDirection = scrollDirection;
     _layout.scrollDirection = (UICollectionViewScrollDirection)scrollDirection;
 }
+
 
 #pragma mark - main view
 - (void)initializeMainView{
@@ -228,6 +286,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
 
     SPBaseCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:ReuseIdentifier forIndexPath:indexPath];
     cell.data = self.datas[_needAutoScroll?[self getRealShownIndex:indexPath.item]:indexPath.item];
+    
     return cell;
 
 }
@@ -241,9 +300,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
 #pragma mark - delegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    self.selectIndex?self.selectIndex(indexPath.item):nil;
+    self.selectIndex?self.selectIndex(indexPath.row):nil;
     if ([self.delegate respondsToSelector:@selector(easyCollectionView:didSelectItemAtIndex:)]) {
-        [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:indexPath.item];
+        [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:indexPath.row];
     }
     
 }

@@ -35,13 +35,28 @@
     _storyboardTest.selectIndex = ^(NSInteger index) {// 点击位置
         
     };
-    _storyboardTest.itemSize = CGSizeMake(100, 100);
-    _storyboardTest.minLineSpace = 20;
-    _storyboardTest.minInterItemSpace = 5;
-    _storyboardTest.inset = UIEdgeInsetsMake(0, 20, 0, 20);
-    _storyboardTest.scrollDirection = SPEasyScrollDirectionVertical;
-    _storyboardTest.cellClassName = @"TestCell";
+//    _storyboardTest.itemSize = CGSizeMake(100, 100);
+//    _storyboardTest.minLineSpace = 20;
+//    _storyboardTest.minInterItemSpace = 5;
+//    _storyboardTest.inset = UIEdgeInsetsMake(0, 20, 0, 20);
+//    _storyboardTest.scrollDirection = SPEasyScrollDirectionVertical;
+//    _storyboardTest.cellClassName = @"TestCell";
     _storyboardTest.datas = @[@"1",@"2",@"3",@"4"];
+    
+    // chain calls
+    _storyboardTest.sp_cellClassName(^NSString *{
+        return @"TestCell";
+    }).sp_itemsize(^CGSize{
+        return CGSizeMake(100, 100);
+    }).sp_minLineSpace(^NSInteger{
+        return 20;
+    }).sp_minInterItemSpace(^NSInteger{
+        return 5;
+    }).sp_scollDirection(^SPEasyScrollDirection{
+        return SPEasyScrollDirectionVertical;
+    }).sp_inset(^UIEdgeInsets{
+        return UIEdgeInsetsMake(0, 20, 0, 20);
+    });
     
 }
 
