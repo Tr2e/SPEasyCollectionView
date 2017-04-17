@@ -40,6 +40,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (void)layoutSubviews{
     [super layoutSubviews];
     
+    // 修正collectionView通过xib初始化时frame不准确
+    _collectionView.frame = self.bounds;
+    
     // register cell
     if (_cellClassName) {
         [_collectionView registerClass:NSClassFromString(_cellClassName) forCellWithReuseIdentifier:ReuseIdentifier];
