@@ -60,6 +60,10 @@ typedef SPEasyCollectionView *(^SPEasyCollectionViewCellClassName)(NSString *(^)
 @property (nonatomic, assign) NSInteger minInterItemSpace;
 @property (nonatomic, assign) SPEasyScrollDirection scrollDirection;
 
+// Edit
+@property (nonatomic, assign) BOOL canEdit;
+@property (nonatomic, assign) NSTimeInterval activeEditingModeTimeInterval;
+
 // chain calls
 @property (nonatomic, readonly) SPEasyCollectionViewinset sp_inset;
 @property (nonatomic, readonly) SPEasyCollectionViewItemSize sp_itemsize;

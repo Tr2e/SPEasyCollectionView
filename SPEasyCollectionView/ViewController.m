@@ -41,7 +41,8 @@
 //    _storyboardTest.inset = UIEdgeInsetsMake(0, 20, 0, 20);
 //    _storyboardTest.scrollDirection = SPEasyScrollDirectionVertical;
 //    _storyboardTest.cellClassName = @"TestCell";
-    _storyboardTest.datas = @[@"1",@"2",@"3",@"4"];
+    _storyboardTest.datas = @[@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4"];
+    _storyboardTest.canEdit = YES;
     
     // chain calls
     _storyboardTest.sp_cellClassName(^NSString *{
@@ -51,7 +52,7 @@
     }).sp_minLineSpace(^NSInteger{
         return 20;
     }).sp_minInterItemSpace(^NSInteger{
-        return 5;
+        return 10;
     }).sp_scollDirection(^SPEasyScrollDirection{
         return SPEasyScrollDirectionVertical;
     }).sp_inset(^UIEdgeInsets{

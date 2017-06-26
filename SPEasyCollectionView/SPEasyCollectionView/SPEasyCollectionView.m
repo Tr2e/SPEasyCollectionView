@@ -19,6 +19,14 @@
 @property (nonatomic, assign) NSUInteger totalItemCount;
 @property (nonatomic, weak) NSTimer *timer;
 
+@property (nonatomic, strong) NSMutableArray *activeCells;
+@property (nonatomic, strong) UIView *snapViewForActiveCell;
+@property (nonatomic, assign) BOOL isEqualOrGreaterThan9_0;
+@property (nonatomic, assign) CGPoint centerOffset;
+@property (nonatomic, weak) UILongPressGestureRecognizer *longGestureRecognizer;
+@property (nonatomic, weak) SPBaseCell *activeCell;
+@property (nonatomic, weak) NSIndexPath *activeIndexPath;
+
 @end
 
 NSString  * const ReuseIdentifier = @"SPCell";
@@ -28,6 +36,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
         [self initializeMainView];
+        self.activeCells = [NSMutableArray array];
     }
     return self;
 }
@@ -124,6 +133,15 @@ NSString  * const ReuseIdentifier = @"SPCell";
 }
 
 #pragma mark - properties
+
+- (void)setCanEdit:(BOOL)canEdit{
+    _canEdit = canEdit;
+    
+    if (canEdit) {
+        [self wakeupEditingMode];
+    }
+    
+}
 
 - (void)setNeedAutoScroll:(BOOL)needAutoScroll{
     _needAutoScroll = needAutoScroll;
@@ -230,6 +248,155 @@ NSString  * const ReuseIdentifier = @"SPCell";
     
 }
 
+#pragma mark - Editing Model
+- (void)wakeupEditingMode{
+    
+    [self addLongPressGestureRecognizer];
+    
+}
+
+- (void)addLongPressGestureRecognizer{
+    
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGesture:)];
+    longPress.minimumPressDuration = self.activeEditingModeTimeInterval?_activeEditingModeTimeInterval:2.0f;
+    [self addGestureRecognizer:longPress];
+    self.longGestureRecognizer = longPress;
+    
+}
+
+- (void)handleLongPressGesture:(UILongPressGestureRecognizer *)recognizer{
+    
+    BOOL isSystemVersionEqualOrGreaterThen9_0 = NO;
+    self.isEqualOrGreaterThan9_0 = isSystemVersionEqualOrGreaterThen9_0 = [UIDevice.currentDevice.systemVersion compare:@"9.0" options:NSNumericSearch] == NSOrderedAscending;
+    [self handleEditingMode:recognizer];
+    
+}
+
+- (void)handleEditingMode:(UILongPressGestureRecognizer *)recognizer{
+    
+    switch (recognizer.state) {
+        case UIGestureRecognizerStateBegan: {
+            [self handleEditingMoveWhenGestureBegan:recognizer];
+            break;
+        }
+        case UIGestureRecognizerStateChanged: {
+            [self handleEditingMoveWhenGestureChanged:recognizer];
+            break;
+        }
+        case UIGestureRecognizerStateEnded: {
+            [self handleEditingMoveWhenGestureEnded:recognizer];
+            break;
+        }
+        default: {
+            [self handleEditingMoveWhenGestureCanceledOrFailed:recognizer];
+            break;
+        }
+    }
+    
+}
+
+- (void)handleEditingMoveWhenGestureBegan:(UILongPressGestureRecognizer *)recognizer{
+
+    CGPoint pressPoint = [recognizer locationInView:self.collectionView];
+    NSIndexPath *selectIndexPath = [self.collectionView indexPathForItemAtPoint:pressPoint];
+    SPBaseCell *cell = (SPBaseCell *)[_collectionView cellForItemAtIndexPath:selectIndexPath];
+    self.activeIndexPath = selectIndexPath;
+    self.activeCell = cell;
+    cell.selected = YES;
+    
+    if (_isEqualOrGreaterThan9_0) {
+        [self.collectionView beginInteractiveMovementForItemAtIndexPath:selectIndexPath];
+    }else{
+        self.snapViewForActiveCell = [cell snapshotViewAfterScreenUpdates:YES];
+        self.snapViewForActiveCell.frame = cell.frame;
+        cell.hidden = YES;
+        [self.collectionView addSubview:self.snapViewForActiveCell];
+        self.centerOffset = CGPointMake(pressPoint.x - cell.center.x, pressPoint.y - cell.center.y);
+    }
+
+}
+
+- (void)handleEditingMoveWhenGestureChanged:(UILongPressGestureRecognizer *)recognizer{
+
+    CGPoint pressPoint = [recognizer locationInView:self.collectionView];
+    if (_isEqualOrGreaterThan9_0) {
+        [self.collectionView updateInteractiveMovementTargetPosition:pressPoint];
+    }else{
+        _snapViewForActiveCell.center = CGPointMake(pressPoint.x - _centerOffset.x, pressPoint.y-_centerOffset.y);
+        for (SPBaseCell *cell in self.collectionView.visibleCells)
+        {
+            NSIndexPath *currentIndexPath = [_collectionView indexPathForCell:cell];
+            if ([_collectionView indexPathForCell:cell] == self.activeIndexPath) continue;
+            
+            CGFloat space = sqrtf(powf(_snapViewForActiveCell.center.x - cell.center.x, 2) + powf(_snapViewForActiveCell.center.y - cell.center.y, 2));
+            CGFloat origin = cell.bounds.size.width/2;
+            
+            if (currentIndexPath.item > self.activeIndexPath.item)
+            {
+                [self.activeCells addObject:cell];
+            }
+            
+            if (space <=  origin/2)
+            {
+                NSMutableArray *tempArr = [self.datas mutableCopy];
+                
+                NSInteger activeRange = currentIndexPath.item - self.activeIndexPath.item;
+                BOOL moveForward = activeRange > 0;
+                NSInteger originIndex = 0;
+                NSInteger targetIndex = 0;
+
+                for (NSInteger i = 1; i <= labs(activeRange); i ++) {
+                    
+                    NSInteger moveDirection = moveForward?1:-1;
+                    originIndex = self.activeIndexPath.item + i*moveDirection;
+                    targetIndex = originIndex  - 1*moveDirection;
+
+                    [_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:originIndex inSection:currentIndexPath.section] toIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:currentIndexPath.section]];
+                    
+                    [tempArr exchangeObjectAtIndex:originIndex withObjectAtIndex:targetIndex];
+                }
+    
+                self.datas = [tempArr copy];
+                self.activeIndexPath = [_collectionView indexPathForCell:cell];
+            }
+        }
+    }
+}
+
+- (void)handleEditingMoveWhenGestureEnded:(UILongPressGestureRecognizer *)recognizer{
+    
+    if (_isEqualOrGreaterThan9_0) {
+        self.activeCell.selected = NO;
+        [self.collectionView endInteractiveMovement];
+    }else{
+        [UIView animateWithDuration:0.25f animations:^{
+            self.snapViewForActiveCell.center = self.activeCell.center;
+        } completion:^(BOOL finished) {
+            [self.snapViewForActiveCell removeFromSuperview];
+            self.activeCell.selected = NO;
+            self.activeCell.hidden = NO;
+        }];
+    }
+    
+}
+
+- (void)handleEditingMoveWhenGestureCanceledOrFailed:(UILongPressGestureRecognizer *)recognizer{
+
+    if (_isEqualOrGreaterThan9_0) {
+        self.activeCell.selected = NO;
+        [self.collectionView cancelInteractiveMovement];
+    }else{
+        [UIView animateWithDuration:0.25f animations:^{
+            self.snapViewForActiveCell.center = self.activeCell.center;
+        } completion:^(BOOL finished) {
+            [self.snapViewForActiveCell removeFromSuperview];
+            self.activeCell.selected = NO;
+            self.activeCell.hidden = NO;
+        }];
+    }
+
+}
+
 
 #pragma mark - scroll actions
 - (void)autoScroll{
@@ -303,6 +470,17 @@ NSString  * const ReuseIdentifier = @"SPCell";
     self.selectIndex?self.selectIndex(indexPath.row):nil;
     if ([self.delegate respondsToSelector:@selector(easyCollectionView:didSelectItemAtIndex:)]) {
         [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:indexPath.row];
+    }
+    
+}
+
+- (void)collectionView:(UICollectionView *)collectionView moveItemAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath{
+    
+    BOOL canChange = self.datas.count > sourceIndexPath.item && self.datas.count > destinationIndexPath.item;
+    if (canChange) {
+        NSMutableArray *tempArr = [self.datas mutableCopy];
+        [tempArr exchangeObjectAtIndex:sourceIndexPath.item withObjectAtIndex:destinationIndexPath.item];
+        self.datas = [tempArr copy];
     }
     
 }
