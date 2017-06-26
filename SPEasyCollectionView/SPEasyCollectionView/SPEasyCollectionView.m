@@ -328,15 +328,18 @@ NSString  * const ReuseIdentifier = @"SPCell";
             NSIndexPath *currentIndexPath = [_collectionView indexPathForCell:cell];
             if ([_collectionView indexPathForCell:cell] == self.activeIndexPath) continue;
             
-            CGFloat space = sqrtf(powf(_snapViewForActiveCell.center.x - cell.center.x, 2) + powf(_snapViewForActiveCell.center.y - cell.center.y, 2));
-            CGFloat origin = cell.bounds.size.width/2;
+            CGFloat space_x = fabs(_snapViewForActiveCell.center.x - cell.center.x);
+            CGFloat space_y = fabs(_snapViewForActiveCell.center.y - cell.center.y);
+            // CGFloat space = sqrtf(powf(space_x, 2) + powf(space_y, 2));
+            CGFloat size_x = cell.bounds.size.width;
+            CGFloat size_y = cell.bounds.size.height;
             
             if (currentIndexPath.item > self.activeIndexPath.item)
             {
                 [self.activeCells addObject:cell];
             }
             
-            if (space <=  origin/2)
+            if (space_x <  size_x/2.0 && space_y < size_y/2.0)
             {
                 NSMutableArray *tempArr = [self.datas mutableCopy];
                 
@@ -344,7 +347,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
                 BOOL moveForward = activeRange > 0;
                 NSInteger originIndex = 0;
                 NSInteger targetIndex = 0;
-
+    
                 for (NSInteger i = 1; i <= labs(activeRange); i ++) {
                     
                     NSInteger moveDirection = moveForward?1:-1;
@@ -354,10 +357,11 @@ NSString  * const ReuseIdentifier = @"SPCell";
                     [_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:originIndex inSection:currentIndexPath.section] toIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:currentIndexPath.section]];
                     
                     [tempArr exchangeObjectAtIndex:originIndex withObjectAtIndex:targetIndex];
+                    
                 }
     
                 self.datas = [tempArr copy];
-                self.activeIndexPath = [_collectionView indexPathForCell:cell];
+                self.activeIndexPath = currentIndexPath;
             }
         }
     }

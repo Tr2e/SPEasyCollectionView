@@ -41,7 +41,7 @@
 //    _storyboardTest.inset = UIEdgeInsetsMake(0, 20, 0, 20);
 //    _storyboardTest.scrollDirection = SPEasyScrollDirectionVertical;
 //    _storyboardTest.cellClassName = @"TestCell";
-    _storyboardTest.datas = @[@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4"];
+    _storyboardTest.datas = @[@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4"];
     _storyboardTest.canEdit = YES;
     
     // chain calls
