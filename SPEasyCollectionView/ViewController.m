@@ -21,27 +21,26 @@
     [super viewDidLoad];
 
     // 代码创建
-    SPEasyCollectionView *easyView = [[SPEasyCollectionView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 200)];
-    easyView.delegate = self;
-    easyView.itemSize = CGSizeMake([UIScreen mainScreen].bounds.size.width, 200);
-    easyView.scrollDirection = SPEasyScrollDirectionHorizontal;
-    easyView.xibName = @"EasyCell";
-    easyView.needAutoScroll = YES;
-    easyView.datas = @[@"1",@"2",@"3",@"4"];
-    
-    [self.view addSubview:easyView];
+//    SPEasyCollectionView *easyView = [[SPEasyCollectionView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 200)];
+//    easyView.delegate = self;
+//    easyView.itemSize = CGSizeMake([UIScreen mainScreen].bounds.size.width, 200);
+//    easyView.scrollDirection = SPEasyScrollDirectionHorizontal;
+//    easyView.xibName = @"EasyCell";
+//    easyView.needAutoScroll = YES;
+//    easyView.datas = @[@"1",@"2",@"3",@"4"];
+//    
+//    [self.view addSubview:easyView];
     
     // storyboard
     _storyboardTest.selectIndex = ^(NSInteger index) {// 点击位置
         
     };
-//    _storyboardTest.itemSize = CGSizeMake(100, 100);
-//    _storyboardTest.minLineSpace = 20;
-//    _storyboardTest.minInterItemSpace = 5;
-//    _storyboardTest.inset = UIEdgeInsetsMake(0, 20, 0, 20);
-//    _storyboardTest.scrollDirection = SPEasyScrollDirectionVertical;
-//    _storyboardTest.cellClassName = @"TestCell";
-    _storyboardTest.datas = @[@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4",@"1",@"2",@"3",@"4"];
+    
+    NSMutableArray *datasM = [NSMutableArray arrayWithCapacity:20];
+    for (NSInteger i = 0; i < 20; i++) {
+        [datasM addObject:[NSString stringWithFormat:@"%ld",i]];
+    }
+    _storyboardTest.datas = [datasM copy];
     _storyboardTest.canEdit = YES;
     
     // chain calls
@@ -56,7 +55,7 @@
     }).sp_scollDirection(^SPEasyScrollDirection{
         return SPEasyScrollDirectionVertical;
     }).sp_inset(^UIEdgeInsets{
-        return UIEdgeInsetsMake(0, 20, 0, 20);
+        return UIEdgeInsetsMake(20, 20, 20, 20);
     });
     
 }

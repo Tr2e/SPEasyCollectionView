@@ -15,17 +15,18 @@
 @interface SPEasyCollectionView()<UICollectionViewDelegate,UICollectionViewDataSource>
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UICollectionView *collectionView;
+// Cycle Function Part
 @property (nonatomic, strong) UIPageControl *pageControl;
 @property (nonatomic, assign) NSUInteger totalItemCount;
 @property (nonatomic, weak) NSTimer *timer;
-
-@property (nonatomic, strong) NSMutableArray *activeCells;
+// Active Cell Part
 @property (nonatomic, strong) UIView *snapViewForActiveCell;
+@property (nonatomic, strong) NSMutableArray *activeCells;
 @property (nonatomic, assign) BOOL isEqualOrGreaterThan9_0;
 @property (nonatomic, assign) CGPoint centerOffset;
-@property (nonatomic, weak) UILongPressGestureRecognizer *longGestureRecognizer;
 @property (nonatomic, weak) SPBaseCell *activeCell;
 @property (nonatomic, weak) NSIndexPath *activeIndexPath;
+@property (nonatomic, weak) UILongPressGestureRecognizer *longGestureRecognizer;
 
 @end
 
@@ -72,7 +73,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
     CGFloat y = self.bounds.size.height - height* 2;
     _pageControl.frame = CGRectMake( x, y, width, height);
     _pageControl.hidden = !_needAutoScroll;
-    
+
 }
 
 #pragma mark - chain calls
@@ -222,6 +223,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (void)setupPageControl{
 
     UIPageControl *pageControl = [[UIPageControl alloc] init];
+    pageControl.hidden = YES;
     pageControl.numberOfPages = _datas.count;
     pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
     pageControl.pageIndicatorTintColor = [UIColor lightGrayColor];
@@ -304,6 +306,8 @@ NSString  * const ReuseIdentifier = @"SPCell";
     self.activeCell = cell;
     cell.selected = YES;
     
+    self.centerOffset = CGPointMake(pressPoint.x - cell.center.x, pressPoint.y - cell.center.y);
+    
     if (_isEqualOrGreaterThan9_0) {
         [self.collectionView beginInteractiveMovementForItemAtIndexPath:selectIndexPath];
     }else{
@@ -311,7 +315,6 @@ NSString  * const ReuseIdentifier = @"SPCell";
         self.snapViewForActiveCell.frame = cell.frame;
         cell.hidden = YES;
         [self.collectionView addSubview:self.snapViewForActiveCell];
-        self.centerOffset = CGPointMake(pressPoint.x - cell.center.x, pressPoint.y - cell.center.y);
     }
 
 }
@@ -323,48 +326,61 @@ NSString  * const ReuseIdentifier = @"SPCell";
         [self.collectionView updateInteractiveMovementTargetPosition:pressPoint];
     }else{
         _snapViewForActiveCell.center = CGPointMake(pressPoint.x - _centerOffset.x, pressPoint.y-_centerOffset.y);
-        for (SPBaseCell *cell in self.collectionView.visibleCells)
-        {
-            NSIndexPath *currentIndexPath = [_collectionView indexPathForCell:cell];
-            if ([_collectionView indexPathForCell:cell] == self.activeIndexPath) continue;
-            
-            CGFloat space_x = fabs(_snapViewForActiveCell.center.x - cell.center.x);
-            CGFloat space_y = fabs(_snapViewForActiveCell.center.y - cell.center.y);
-            // CGFloat space = sqrtf(powf(space_x, 2) + powf(space_y, 2));
-            CGFloat size_x = cell.bounds.size.width;
-            CGFloat size_y = cell.bounds.size.height;
-            
-            if (currentIndexPath.item > self.activeIndexPath.item)
-            {
-                [self.activeCells addObject:cell];
-            }
-            
-            if (space_x <  size_x/2.0 && space_y < size_y/2.0)
-            {
-                NSMutableArray *tempArr = [self.datas mutableCopy];
-                
-                NSInteger activeRange = currentIndexPath.item - self.activeIndexPath.item;
-                BOOL moveForward = activeRange > 0;
-                NSInteger originIndex = 0;
-                NSInteger targetIndex = 0;
+        [self handleExchangeOperation];
+    }
     
-                for (NSInteger i = 1; i <= labs(activeRange); i ++) {
-                    
-                    NSInteger moveDirection = moveForward?1:-1;
-                    originIndex = self.activeIndexPath.item + i*moveDirection;
-                    targetIndex = originIndex  - 1*moveDirection;
+}
 
-                    [_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:originIndex inSection:currentIndexPath.section] toIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:currentIndexPath.section]];
-                    
-                    [tempArr exchangeObjectAtIndex:originIndex withObjectAtIndex:targetIndex];
-                    
-                }
-    
-                self.datas = [tempArr copy];
-                self.activeIndexPath = currentIndexPath;
-            }
+- (void)handleExchangeOperation{
+
+    for (SPBaseCell *cell in self.collectionView.visibleCells)
+    {
+        NSIndexPath *currentIndexPath = [_collectionView indexPathForCell:cell];
+        if ([_collectionView indexPathForCell:cell] == self.activeIndexPath) continue;
+        
+        CGFloat space_x = fabs(_snapViewForActiveCell.center.x - cell.center.x);
+        CGFloat space_y = fabs(_snapViewForActiveCell.center.y - cell.center.y);
+        // CGFloat space = sqrtf(powf(space_x, 2) + powf(space_y, 2));
+        CGFloat size_x = cell.bounds.size.width;
+        CGFloat size_y = cell.bounds.size.height;
+        
+        if (currentIndexPath.item > self.activeIndexPath.item)
+        {
+            [self.activeCells addObject:cell];
+        }
+        
+        if (space_x <  size_x/2.0 && space_y < size_y/2.0)
+        {
+            [self handleDatasourceWhenExchangingWithSourceIndexPath:self.activeIndexPath destinationIndexPath:currentIndexPath];
+            self.activeIndexPath = currentIndexPath;
         }
     }
+    
+}
+
+- (void)handleDatasourceWhenExchangingWithSourceIndexPath:(NSIndexPath *)sourceIndexPath destinationIndexPath:(NSIndexPath *)destinationIndexPath{
+
+    NSMutableArray *tempArr = [self.datas mutableCopy];
+    
+    NSInteger activeRange = destinationIndexPath.item - sourceIndexPath.item;
+    BOOL moveForward = activeRange > 0;
+    NSInteger originIndex = 0;
+    NSInteger targetIndex = 0;
+    
+    for (NSInteger i = 1; i <= labs(activeRange); i ++) {
+        
+        NSInteger moveDirection = moveForward?1:-1;
+        originIndex = sourceIndexPath.item + i*moveDirection;
+        targetIndex = originIndex  - 1*moveDirection;
+        
+        if (!_isEqualOrGreaterThan9_0) {
+            [_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:originIndex inSection:sourceIndexPath.section] toIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:sourceIndexPath.section]];
+        }
+        
+        [tempArr exchangeObjectAtIndex:originIndex withObjectAtIndex:targetIndex];
+
+    }
+    self.datas = [tempArr copy];
 }
 
 - (void)handleEditingMoveWhenGestureEnded:(UILongPressGestureRecognizer *)recognizer{
@@ -380,6 +396,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
             self.activeCell.selected = NO;
             self.activeCell.hidden = NO;
         }];
+        
+        NSLog(@"current datasource:%@",self.datas);
+        
     }
     
 }
@@ -482,9 +501,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
     
     BOOL canChange = self.datas.count > sourceIndexPath.item && self.datas.count > destinationIndexPath.item;
     if (canChange) {
-        NSMutableArray *tempArr = [self.datas mutableCopy];
-        [tempArr exchangeObjectAtIndex:sourceIndexPath.item withObjectAtIndex:destinationIndexPath.item];
-        self.datas = [tempArr copy];
+        [self handleDatasourceWhenExchangingWithSourceIndexPath:sourceIndexPath destinationIndexPath:destinationIndexPath];
     }
     
 }

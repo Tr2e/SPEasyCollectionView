@@ -8,6 +8,10 @@
 
 #import "TestCell.h"
 
+@interface TestCell()
+@property (nonatomic, weak)UILabel *testLabel;
+@end
+
 @implementation TestCell
 
 
@@ -26,6 +30,22 @@
 - (void)setupUI{
 
     self.backgroundColor = [UIColor lightGrayColor];
+    UILabel *numLabel = [[UILabel alloc] init];
+    numLabel.textColor = [UIColor whiteColor];
+    numLabel.contentMode = UIViewContentModeCenter;
+    numLabel.font = [UIFont systemFontOfSize:18 weight:UIFontWeightBold];
+    
+    [self.contentView addSubview:numLabel];
+    self.testLabel = numLabel;
+    
+}
+
+- (void)setData:(id)data{
+    [super setData:data];
+    
+    _testLabel.text = (NSString *)data;
+    [_testLabel sizeToFit];
+    _testLabel.center = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
     
 }
 
