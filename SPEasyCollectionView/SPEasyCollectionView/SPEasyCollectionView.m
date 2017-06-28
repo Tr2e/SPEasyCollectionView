@@ -12,21 +12,34 @@
 
 #define SPEasyPageControlSize CGSizeMake(10,10)
 
+typedef NS_ENUM(NSInteger,SPDragDirection) {
+    SPDragDirectionRight,
+    SPDragDirectionLeft,
+    SPDragDirectionUp,
+    SPDragDirectionDown
+};
+
 @interface SPEasyCollectionView()<UICollectionViewDelegate,UICollectionViewDataSource>
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UICollectionView *collectionView;
+
 // Cycle Function Part
 @property (nonatomic, strong) UIPageControl *pageControl;
 @property (nonatomic, assign) NSUInteger totalItemCount;
 @property (nonatomic, weak) NSTimer *timer;
+
 // Active Cell Part
-@property (nonatomic, strong) UIView *snapViewForActiveCell;
-@property (nonatomic, strong) NSMutableArray *activeCells;
 @property (nonatomic, assign) BOOL isEqualOrGreaterThan9_0;
+@property (nonatomic, assign) CGFloat edgeIntersectionOffset;
 @property (nonatomic, assign) CGPoint centerOffset;
-@property (nonatomic, weak) SPBaseCell *activeCell;
-@property (nonatomic, weak) NSIndexPath *activeIndexPath;
+@property (nonatomic, assign) SPDragDirection dragDirection;
 @property (nonatomic, weak) UILongPressGestureRecognizer *longGestureRecognizer;
+@property (nonatomic, weak) NSIndexPath *activeIndexPath;
+@property (nonatomic, weak) SPBaseCell *activeCell;
+@property (nonatomic, strong) CADisplayLink *displayLink;
+@property (nonatomic, strong) NSMutableArray *activeCells;
+@property (nonatomic, strong) UIView *snapViewForActiveCell;
+@property (nonatomic, assign) CGFloat changeRatio;
 
 @end
 
@@ -250,6 +263,25 @@ NSString  * const ReuseIdentifier = @"SPCell";
     
 }
 
+- (void)setupCADisplayLink{
+
+    if (self.displayLink) {
+        return;
+    }
+    CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleEdgeIntersection)];
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    self.displayLink = displayLink;
+    
+}
+
+- (void)invalidateCADisplayLink{
+    
+    [self.displayLink setPaused:YES];
+    [self.displayLink invalidate];
+    self.displayLink = nil;
+    
+}
+
 #pragma mark - Editing Model
 - (void)wakeupEditingMode{
     
@@ -327,6 +359,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
     }else{
         _snapViewForActiveCell.center = CGPointMake(pressPoint.x - _centerOffset.x, pressPoint.y-_centerOffset.y);
         [self handleExchangeOperation];
+        [self detectEdge];
     }
     
 }
@@ -372,9 +405,15 @@ NSString  * const ReuseIdentifier = @"SPCell";
         NSInteger moveDirection = moveForward?1:-1;
         originIndex = sourceIndexPath.item + i*moveDirection;
         targetIndex = originIndex  - 1*moveDirection;
-        
+
         if (!_isEqualOrGreaterThan9_0) {
+            CGFloat time = 0.25 - 0.11*fabs(self.changeRatio);
+            NSLog(@"time:%f",time);
+            [UIView beginAnimations:nil context:nil];
+            [UIView setAnimationDuration:time];
             [_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForItem:originIndex inSection:sourceIndexPath.section] toIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:sourceIndexPath.section]];
+            [UIView commitAnimations];
+
         }
         
         [tempArr exchangeObjectAtIndex:originIndex withObjectAtIndex:targetIndex];
@@ -397,7 +436,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
             self.activeCell.hidden = NO;
         }];
         
-        NSLog(@"current datasource:%@",self.datas);
+        [self invalidateCADisplayLink];
+        self.edgeIntersectionOffset = 0;
+        self.changeRatio = 0;
         
     }
     
@@ -416,12 +457,143 @@ NSString  * const ReuseIdentifier = @"SPCell";
             self.activeCell.selected = NO;
             self.activeCell.hidden = NO;
         }];
+        
+        [self invalidateCADisplayLink];
+        self.edgeIntersectionOffset = 0;
+        self.changeRatio = 0;
     }
 
 }
 
 
-#pragma mark - scroll actions
+static CGFloat edgeRange = 10;
+static CGFloat velocityRatio = 5;
+- (void)detectEdge{
+    
+    CGFloat baseOffset = 2;
+
+    CGPoint snapView_minPoint = self.snapViewForActiveCell.frame.origin;
+    CGFloat snapView_max_x = CGRectGetMaxX(_snapViewForActiveCell.frame);
+    CGFloat snapView_max_y = CGRectGetMaxY(_snapViewForActiveCell.frame);
+    
+    // left
+    if (snapView_minPoint.x - self.collectionView.contentOffset.x < edgeRange &&
+        self.collectionView.contentOffset.x > 0){
+
+        CGFloat intersection_x = edgeRange - (snapView_minPoint.x - self.collectionView.contentOffset.x);
+        intersection_x = intersection_x < 2*edgeRange?2*edgeRange:intersection_x;
+        self.changeRatio = intersection_x/(2*edgeRange);
+        baseOffset = baseOffset * -1 -  _changeRatio* baseOffset *velocityRatio;
+        self.edgeIntersectionOffset = baseOffset;
+        self.dragDirection = SPDragDirectionLeft;
+        [self setupCADisplayLink];
+        NSLog(@"Drag left - vertical offset:%f",self.edgeIntersectionOffset);
+        NSLog(@"CollectionView offset_X:%f",self.collectionView.contentOffset.x);
+        
+    }
+    
+    // up
+    else if (snapView_minPoint.y - self.collectionView.contentOffset.y < edgeRange &&
+             self.collectionView.contentOffset.y > 0){
+        
+        CGFloat intersection_y = edgeRange - (snapView_minPoint.y - self.collectionView.contentOffset.y);
+        intersection_y = intersection_y > 2*edgeRange?2*edgeRange:intersection_y;
+        self.changeRatio = intersection_y/(2*edgeRange);
+        baseOffset = baseOffset * -1 -  _changeRatio* baseOffset *velocityRatio;
+        self.edgeIntersectionOffset = baseOffset;
+        self.dragDirection = SPDragDirectionUp;
+        [self setupCADisplayLink];
+        NSLog(@"Drag up - vertical offset:%f",self.edgeIntersectionOffset);
+        NSLog(@"CollectionView offset_Y:%f",self.collectionView.contentOffset.y);
+
+    }
+    
+    // right
+    else if (snapView_max_x + edgeRange > self.collectionView.contentOffset.x + self.collectionView.bounds.size.width && self.collectionView.contentOffset.x + self.collectionView.bounds.size.width < self.collectionView.contentSize.width){
+        
+        CGFloat intersection_x = edgeRange - (self.collectionView.contentOffset.x + self.collectionView.bounds.size.width - snapView_max_x);
+        intersection_x = intersection_x > 2*edgeRange ? 2*edgeRange:intersection_x;
+        self.changeRatio = intersection_x/(2*edgeRange);
+        baseOffset = baseOffset + _changeRatio * baseOffset * velocityRatio;
+        self.edgeIntersectionOffset = baseOffset;
+        self.dragDirection = SPDragDirectionRight;
+        [self setupCADisplayLink];
+        NSLog(@"Drag right - vertical offset:%f",self.edgeIntersectionOffset);
+        NSLog(@"CollectionView offset_X:%f",self.collectionView.contentOffset.x);
+        
+    }
+    
+    // down
+    else if (snapView_max_y + edgeRange > self.collectionView.contentOffset.y + self.collectionView.bounds.size.height && self.collectionView.contentOffset.y + self.collectionView.bounds.size.height < self.collectionView.contentSize.height){
+        
+        CGFloat intersection_y = edgeRange - (self.collectionView.contentOffset.y + self.collectionView.bounds.size.height - snapView_max_y);
+        intersection_y = intersection_y > 2*edgeRange ? 2*edgeRange:intersection_y;
+        self.changeRatio = intersection_y/(2*edgeRange);
+        baseOffset = baseOffset +  _changeRatio* baseOffset * velocityRatio;
+        self.edgeIntersectionOffset = baseOffset;
+        self.dragDirection = SPDragDirectionDown;
+        [self setupCADisplayLink];
+        NSLog(@"Drag down - vertical offset:%f",self.edgeIntersectionOffset);
+        NSLog(@"CollectionView offset_Y:%f",self.collectionView.contentOffset.y);
+        
+    }
+    
+    // default
+    else{
+        
+        self.changeRatio = 0;
+        
+        if (self.displayLink)
+        {
+            [self invalidateCADisplayLink];
+        }
+    }
+    
+}
+
+- (void)handleEdgeIntersection{
+    
+    [self handleExchangeOperation];
+
+    switch (_scrollDirection) {
+        case SPEasyScrollDirectionHorizontal:
+        {
+            if (self.collectionView.contentOffset.x + self.inset.left < 0 &&
+                self.dragDirection == SPDragDirectionLeft){
+                return;
+            }
+            if (self.collectionView.contentOffset.x >
+                self.collectionView.contentSize.width - (self.collectionView.bounds.size.width - self.inset.left) &&
+                self.dragDirection == SPDragDirectionRight){
+                    return;
+            }
+            
+            [self.collectionView setContentOffset:CGPointMake(_collectionView.contentOffset.x + self.edgeIntersectionOffset, _collectionView.contentOffset.y) animated:NO];
+            self.snapViewForActiveCell.center = CGPointMake(_snapViewForActiveCell.center.x + self.edgeIntersectionOffset, _snapViewForActiveCell.center.y);
+        }
+            break;
+        case SPEasyScrollDirectionVertical:
+        {
+            
+            if (self.collectionView.contentOffset.y + self.inset.top< 0 &&
+                self.dragDirection == SPDragDirectionUp) {
+                return;
+            }
+            if (self.collectionView.contentOffset.y >
+                self.collectionView.contentSize.height - (self.collectionView.bounds.size.height - self.inset.top) &&
+                self.dragDirection == SPDragDirectionDown) {
+                return;
+            }
+            
+            [self.collectionView setContentOffset:CGPointMake(_collectionView.contentOffset.x, _collectionView.contentOffset.y +  self.edgeIntersectionOffset) animated:NO];
+            self.snapViewForActiveCell.center = CGPointMake(_snapViewForActiveCell.center.x, _snapViewForActiveCell.center.y + self.edgeIntersectionOffset);
+        }
+            break;
+    }
+    
+}
+
+#pragma mark - cycle scroll actions
 - (void)autoScroll{
 
     if (!_totalItemCount) return;
@@ -510,6 +682,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
     
     if (!self.datas.count) return;
      _pageControl.currentPage = [self getRealShownIndex:[self currentIndex]];
+    
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{

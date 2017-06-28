@@ -37,7 +37,7 @@
     };
     
     NSMutableArray *datasM = [NSMutableArray arrayWithCapacity:20];
-    for (NSInteger i = 0; i < 20; i++) {
+    for (NSInteger i = 0; i < 40; i++) {
         [datasM addObject:[NSString stringWithFormat:@"%ld",i]];
     }
     _storyboardTest.datas = [datasM copy];
