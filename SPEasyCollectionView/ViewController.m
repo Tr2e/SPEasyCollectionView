@@ -28,7 +28,6 @@
     easyView.xibName = @"EasyCell";
     easyView.needAutoScroll = YES;
     easyView.datas = @[@"1",@"2",@"3",@"4"];
-    
     [self.view addSubview:easyView];
     
     // storyboard

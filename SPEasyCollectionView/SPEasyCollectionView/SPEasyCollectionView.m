@@ -35,6 +35,7 @@ typedef NS_ENUM(NSInteger,SPDragDirection) {
 @property (nonatomic, assign) SPDragDirection dragDirection;
 @property (nonatomic, weak) UILongPressGestureRecognizer *longGestureRecognizer;
 @property (nonatomic, weak) NSIndexPath *activeIndexPath;
+@property (nonatomic, weak) NSIndexPath *sourceIndexPath;
 @property (nonatomic, weak) SPBaseCell *activeCell;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, strong) NSMutableArray *activeCells;
@@ -321,7 +322,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer *)recognizer{
     
     BOOL isSystemVersionEqualOrGreaterThen9_0 = NO;
-    self.isEqualOrGreaterThan9_0 = isSystemVersionEqualOrGreaterThen9_0 = [UIDevice.currentDevice.systemVersion compare:@"9.0" options:NSNumericSearch] == NSOrderedAscending;
+    self.isEqualOrGreaterThan9_0 = isSystemVersionEqualOrGreaterThen9_0 = [UIDevice.currentDevice.systemVersion compare:@"9.0" options:NSNumericSearch] != NSOrderedAscending;
     [self handleEditingMode:recognizer];
     
 }
@@ -355,6 +356,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
     NSIndexPath *selectIndexPath = [self.collectionView indexPathForItemAtPoint:pressPoint];
     SPBaseCell *cell = (SPBaseCell *)[_collectionView cellForItemAtIndexPath:selectIndexPath];
     self.activeIndexPath = selectIndexPath;
+    self.sourceIndexPath = selectIndexPath;
     self.activeCell = cell;
     cell.selected = YES;
     
@@ -404,17 +406,37 @@ NSString  * const ReuseIdentifier = @"SPCell";
         
         if (space_x <  size_x/2.0 && space_y < size_y/2.0)
         {
-            [self handleDatasourceWhenExchangingWithSourceIndexPath:self.activeIndexPath destinationIndexPath:currentIndexPath];
+            [self handleCellExchangeWithSourceIndexPath:self.activeIndexPath destinationIndexPath:currentIndexPath];
             self.activeIndexPath = currentIndexPath;
         }
     }
     
 }
 
-- (void)handleDatasourceWhenExchangingWithSourceIndexPath:(NSIndexPath *)sourceIndexPath destinationIndexPath:(NSIndexPath *)destinationIndexPath{
-
+- (void)handleDatasourceExchangeWithSourceIndexPath:(NSIndexPath *)sourceIndexPath destinationIndexPath:(NSIndexPath *)destinationIndexPath{
+    
     NSMutableArray *tempArr = [self.datas mutableCopy];
     
+    NSInteger activeRange = destinationIndexPath.item - sourceIndexPath.item;
+    BOOL moveForward = activeRange > 0;
+    NSInteger originIndex = 0;
+    NSInteger targetIndex = 0;
+    
+    for (NSInteger i = 1; i <= labs(activeRange); i ++) {
+        
+        NSInteger moveDirection = moveForward?1:-1;
+        originIndex = sourceIndexPath.item + i*moveDirection;
+        targetIndex = originIndex  - 1*moveDirection;
+        
+        [tempArr exchangeObjectAtIndex:originIndex withObjectAtIndex:targetIndex];
+        
+    }
+    self.datas = [tempArr copy];
+    NSLog(@"##### %@ #####",self.datas);
+}
+
+- (void)handleCellExchangeWithSourceIndexPath:(NSIndexPath *)sourceIndexPath destinationIndexPath:(NSIndexPath *)destinationIndexPath{
+
     NSInteger activeRange = destinationIndexPath.item - sourceIndexPath.item;
     BOOL moveForward = activeRange > 0;
     NSInteger originIndex = 0;
@@ -436,10 +458,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
 
         }
         
-        [tempArr exchangeObjectAtIndex:originIndex withObjectAtIndex:targetIndex];
 
     }
-    self.datas = [tempArr copy];
+
 }
 
 - (void)handleEditingMoveWhenGestureEnded:(UILongPressGestureRecognizer *)recognizer{
@@ -456,6 +477,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
             self.activeCell.hidden = NO;
         }];
         
+        [self handleDatasourceExchangeWithSourceIndexPath:self.sourceIndexPath destinationIndexPath:self.activeIndexPath];
         [self invalidateCADisplayLink];
         self.edgeIntersectionOffset = 0;
         self.changeRatio = 0;
@@ -699,7 +721,7 @@ static CGFloat velocityRatio = 5;
     
     BOOL canChange = self.datas.count > sourceIndexPath.item && self.datas.count > destinationIndexPath.item;
     if (canChange) {
-        [self handleDatasourceWhenExchangingWithSourceIndexPath:sourceIndexPath destinationIndexPath:destinationIndexPath];
+        [self handleDatasourceExchangeWithSourceIndexPath:sourceIndexPath destinationIndexPath:destinationIndexPath];
     }
     
 }
