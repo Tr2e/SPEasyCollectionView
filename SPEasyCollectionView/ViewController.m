@@ -21,15 +21,15 @@
     [super viewDidLoad];
 
     // 代码创建
-//    SPEasyCollectionView *easyView = [[SPEasyCollectionView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 200)];
-//    easyView.delegate = self;
-//    easyView.itemSize = CGSizeMake([UIScreen mainScreen].bounds.size.width, 200);
-//    easyView.scrollDirection = SPEasyScrollDirectionHorizontal;
-//    easyView.xibName = @"EasyCell";
-//    easyView.needAutoScroll = YES;
-//    easyView.datas = @[@"1",@"2",@"3",@"4"];
-//    
-//    [self.view addSubview:easyView];
+    SPEasyCollectionView *easyView = [[SPEasyCollectionView alloc] initWithFrame:CGRectMake(0, 20, [UIScreen mainScreen].bounds.size.width, 200)];
+    easyView.delegate = self;
+    easyView.itemSize = CGSizeMake([UIScreen mainScreen].bounds.size.width, 200);
+    easyView.scrollDirection = SPEasyScrollDirectionHorizontal;
+    easyView.xibName = @"EasyCell";
+    easyView.needAutoScroll = YES;
+    easyView.datas = @[@"1",@"2",@"3",@"4"];
+    
+    [self.view addSubview:easyView];
     
     // storyboard
     _storyboardTest.selectIndex = ^(NSInteger index) {// 点击位置
@@ -56,13 +56,17 @@
         return SPEasyScrollDirectionVertical;
     }).sp_inset(^UIEdgeInsets{
         return UIEdgeInsetsMake(20, 20, 20, 20);
-    });
+    }).sp_backgroundColor(^UIColor *{
+        return [UIColor colorWithRed:173/255.0 green:216/255.0 blue:230/255.0 alpha:1];
+    });//LightBLue 			#ADD8E6	173,216,230
     
 }
+
 
 // 点击位置
 - (void)easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:(NSInteger)index{
 
+    
 }
 
 

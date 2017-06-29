@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		042683CB1F049EF5006613B6 /* IMG_2468.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 042683CA1F049EF5006613B6 /* IMG_2468.JPG */; };
 		044888311E9636C8007EC616 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 044888301E9636C8007EC616 /* main.m */; };
 		044888341E9636C8007EC616 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 044888331E9636C8007EC616 /* AppDelegate.m */; };
 		044888371E9636C8007EC616 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 044888361E9636C8007EC616 /* ViewController.m */; };
@@ -16,13 +17,13 @@
 		044888491E963706007EC616 /* SPEasyCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 044888481E963706007EC616 /* SPEasyCollectionView.m */; };
 		044888501E963C59007EC616 /* SPBaseCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0448884F1E963C59007EC616 /* SPBaseCell.m */; };
 		044888521E964EB0007EC616 /* EasyCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 044888511E964EB0007EC616 /* EasyCell.xib */; };
-		044888541E964F1F007EC616 /* 155MTFSD7.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 044888531E964F1F007EC616 /* 155MTFSD7.jpg */; };
 		044888571E964F47007EC616 /* EasyCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 044888561E964F47007EC616 /* EasyCell.m */; };
 		044BDFA51E974A0700A8F742 /* TestCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 044BDFA41E974A0700A8F742 /* TestCell.m */; };
 		044BDFA91E97614400A8F742 /* EasyTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 044BDFA81E97614400A8F742 /* EasyTools.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		042683CA1F049EF5006613B6 /* IMG_2468.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_2468.JPG; sourceTree = "<group>"; };
 		0448882C1E9636C8007EC616 /* SPEasyCollectionView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SPEasyCollectionView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		044888301E9636C8007EC616 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		044888321E9636C8007EC616 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -38,7 +39,6 @@
 		0448884E1E963C59007EC616 /* SPBaseCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPBaseCell.h; sourceTree = "<group>"; };
 		0448884F1E963C59007EC616 /* SPBaseCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SPBaseCell.m; sourceTree = "<group>"; };
 		044888511E964EB0007EC616 /* EasyCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EasyCell.xib; sourceTree = "<group>"; };
-		044888531E964F1F007EC616 /* 155MTFSD7.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 155MTFSD7.jpg; sourceTree = "<group>"; };
 		044888551E964F47007EC616 /* EasyCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyCell.h; sourceTree = "<group>"; };
 		044888561E964F47007EC616 /* EasyCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyCell.m; sourceTree = "<group>"; };
 		044BDFA31E974A0700A8F742 /* TestCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCell.h; sourceTree = "<group>"; };
@@ -91,7 +91,7 @@
 				0448883B1E9636C9007EC616 /* Assets.xcassets */,
 				0448883D1E9636C9007EC616 /* LaunchScreen.storyboard */,
 				044888401E9636C9007EC616 /* Info.plist */,
-				044888531E964F1F007EC616 /* 155MTFSD7.jpg */,
+				042683CA1F049EF5006613B6 /* IMG_2468.JPG */,
 				0448882F1E9636C8007EC616 /* Supporting Files */,
 			);
 			path = SPEasyCollectionView;
@@ -184,11 +184,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				044888541E964F1F007EC616 /* 155MTFSD7.jpg in Resources */,
 				0448883F1E9636C9007EC616 /* LaunchScreen.storyboard in Resources */,
 				0448883C1E9636C9007EC616 /* Assets.xcassets in Resources */,
 				0448883A1E9636C8007EC616 /* Main.storyboard in Resources */,
 				044888521E964EB0007EC616 /* EasyCell.xib in Resources */,
+				042683CB1F049EF5006613B6 /* IMG_2468.JPG in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

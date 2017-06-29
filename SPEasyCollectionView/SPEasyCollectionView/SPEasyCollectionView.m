@@ -19,7 +19,7 @@ typedef NS_ENUM(NSInteger,SPDragDirection) {
     SPDragDirectionDown
 };
 
-@interface SPEasyCollectionView()<UICollectionViewDelegate,UICollectionViewDataSource>
+@interface SPEasyCollectionView()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UICollectionView *collectionView;
 
@@ -61,7 +61,6 @@ NSString  * const ReuseIdentifier = @"SPCell";
 }
 
 - (void)layoutSubviews{
-    [super layoutSubviews];
     
     // 修正collectionView通过xib初始化时frame不准确
     _collectionView.frame = self.bounds;
@@ -78,6 +77,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
     _layout.minimumLineSpacing = _minLineSpace?_minLineSpace:0;
     _layout.minimumInteritemSpacing = _minInterItemSpace?_minInterItemSpace:0;
     
+    // backgroundColor
+    self.collectionView.backgroundColor = self.backgroundColor?_backgroundColor:[UIColor whiteColor];
+    
     // pageControl
     CGSize size = SPEasyPageControlSize;
     CGFloat width = size.width * 1.5;
@@ -86,6 +88,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
     CGFloat y = self.bounds.size.height - height* 2;
     _pageControl.frame = CGRectMake( x, y, width, height);
     _pageControl.hidden = !_needAutoScroll;
+    
+    // super
+    [super layoutSubviews];
 
 }
 
@@ -142,6 +147,13 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (SPEasyCollectionViewCellClassName)sp_cellClassName{
     return ^SPEasyCollectionView *(NSString *(^className)()){
         self.cellClassName = className();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewBackgroundColor)sp_backgroundColor{
+    return ^SPEasyCollectionView *(UIColor *(^backgroundColor)()){
+        self.backgroundColor = backgroundColor();
         return self;
     };
 }
@@ -220,10 +232,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
     
     // collectionview
     UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
-    collectionView.backgroundColor = [UIColor whiteColor];
     collectionView.delegate  = self;
     collectionView.dataSource = self;
-    collectionView.scrollsToTop = NO;
+    collectionView.scrollsToTop = YES;
     collectionView.showsVerticalScrollIndicator = NO;
     collectionView.showsHorizontalScrollIndicator = NO;
     
@@ -297,6 +308,15 @@ NSString  * const ReuseIdentifier = @"SPCell";
     self.longGestureRecognizer = longPress;
     
 }
+
+- (void)collectionView:(UICollectionView *)collectionView willDisplaySupplementaryView:(UICollectionReusableView *)view forElementKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath{
+
+}
+
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath{
+
+}
+
 
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer *)recognizer{
     
@@ -669,6 +689,12 @@ static CGFloat velocityRatio = 5;
     
 }
 
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
+
+    return nil;
+    
+}
+
 - (void)collectionView:(UICollectionView *)collectionView moveItemAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath{
     
     BOOL canChange = self.datas.count > sourceIndexPath.item && self.datas.count > destinationIndexPath.item;
@@ -684,6 +710,7 @@ static CGFloat velocityRatio = 5;
      _pageControl.currentPage = [self getRealShownIndex:[self currentIndex]];
     
 }
+
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
     

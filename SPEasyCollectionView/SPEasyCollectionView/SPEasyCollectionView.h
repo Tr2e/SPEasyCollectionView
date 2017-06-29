@@ -30,6 +30,7 @@ typedef SPEasyCollectionView *(^SPEasyCollectionViewScrollDirection)(SPEasyScrol
 typedef SPEasyCollectionView *(^SPEasyCollectionViewDelegate)(id(^)(void));
 typedef SPEasyCollectionView *(^SPEasyCollectionViewCellXibName)(NSString *(^)(void));
 typedef SPEasyCollectionView *(^SPEasyCollectionViewCellClassName)(NSString *(^)(void));
+typedef SPEasyCollectionView *(^SPEasyCollectionViewBackgroundColor)(UIColor *(^)(void));
 
 
 @protocol SPEasyCollectionViewDelegate <NSObject>
@@ -57,6 +58,7 @@ typedef SPEasyCollectionView *(^SPEasyCollectionViewCellClassName)(NSString *(^)
 @property (nonatomic, assign) CGSize itemSize;
 @property (nonatomic, assign) UIEdgeInsets inset;
 @property (nonatomic, assign) NSInteger minLineSpace;
+@property (nonatomic, strong) UIColor *backgroundColor;
 @property (nonatomic, assign) NSInteger minInterItemSpace;
 @property (nonatomic, assign) SPEasyScrollDirection scrollDirection;
 
@@ -73,6 +75,7 @@ typedef SPEasyCollectionView *(^SPEasyCollectionViewCellClassName)(NSString *(^)
 @property (nonatomic, readonly) SPEasyCollectionViewDelegate sp_delegate;
 @property (nonatomic, readonly) SPEasyCollectionViewCellXibName sp_xibName;
 @property (nonatomic, readonly) SPEasyCollectionViewCellClassName sp_cellClassName;
+@property (nonatomic, readonly) SPEasyCollectionViewBackgroundColor sp_backgroundColor;
 
 
 @property (nonatomic, strong) NSArray *datas;
