@@ -49,7 +49,7 @@ typedef SPEasyCollectionView *(^SPEasyCollectionViewBackgroundColor)(UIColor *(^
 
 // Register Cell
 @property (nonatomic, strong) NSString *xibName;
-@property (nonatomic, strong) NSString* cellClassName;
+@property (nonatomic, strong) NSString *cellClassName;
 
 
 @property (nonatomic, assign) BOOL bounces;
