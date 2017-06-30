@@ -184,7 +184,9 @@ NSString  * const ReuseIdentifier = @"SPCell";
     _datas = datas;
     
     _totalItemCount = _needAutoScroll?datas.count * 500:datas.count;
-    [self setupPageControl];
+    if (_needAutoScroll) {
+        [self setupPageControl];
+    }
     [self.collectionView reloadData];
 }
 
@@ -322,7 +324,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer *)recognizer{
     
     BOOL isSystemVersionEqualOrGreaterThen9_0 = NO;
-    self.isEqualOrGreaterThan9_0 = isSystemVersionEqualOrGreaterThen9_0 = [UIDevice.currentDevice.systemVersion compare:@"9.0" options:NSNumericSearch] == NSOrderedAscending;
+    self.isEqualOrGreaterThan9_0 = isSystemVersionEqualOrGreaterThen9_0 = [UIDevice.currentDevice.systemVersion compare:@"9.0" options:NSNumericSearch] != NSOrderedAscending;
     [self handleEditingMode:recognizer];
     
 }
@@ -351,14 +353,14 @@ NSString  * const ReuseIdentifier = @"SPCell";
 }
 
 - (void)handleEditingMoveWhenGestureBegan:(UILongPressGestureRecognizer *)recognizer{
-
+    
     CGPoint pressPoint = [recognizer locationInView:self.collectionView];
     NSIndexPath *selectIndexPath = [self.collectionView indexPathForItemAtPoint:pressPoint];
     SPBaseCell *cell = (SPBaseCell *)[_collectionView cellForItemAtIndexPath:selectIndexPath];
     self.activeIndexPath = selectIndexPath;
     self.sourceIndexPath = selectIndexPath;
     self.activeCell = cell;
-    cell.selected = YES;
+    self.activeCell.selected = YES;
     
     self.centerOffset = CGPointMake(pressPoint.x - cell.center.x, pressPoint.y - cell.center.y);
     
@@ -432,7 +434,7 @@ NSString  * const ReuseIdentifier = @"SPCell";
         
     }
     self.datas = [tempArr copy];
-    // NSLog(@"##### %@ #####",self.datas);
+    NSLog(@"##### %@ #####",self.datas);
 }
 
 - (void)handleCellExchangeWithSourceIndexPath:(NSIndexPath *)sourceIndexPath destinationIndexPath:(NSIndexPath *)destinationIndexPath{
@@ -471,13 +473,10 @@ NSString  * const ReuseIdentifier = @"SPCell";
         self.activeCell.selected = NO;
         [self.collectionView endInteractiveMovement];
     }else{
-        [UIView animateWithDuration:0.25f animations:^{
-            self.snapViewForActiveCell.center = self.activeCell.center;
-        } completion:^(BOOL finished) {
-            [self.snapViewForActiveCell removeFromSuperview];
-            self.activeCell.selected = NO;
-            self.activeCell.hidden = NO;
-        }];
+
+        [self.snapViewForActiveCell removeFromSuperview];
+        self.activeCell.selected = NO;
+        self.activeCell.hidden = NO;
         
         [self handleDatasourceExchangeWithSourceIndexPath:self.sourceIndexPath destinationIndexPath:self.activeIndexPath];
         [self invalidateCADisplayLink];
