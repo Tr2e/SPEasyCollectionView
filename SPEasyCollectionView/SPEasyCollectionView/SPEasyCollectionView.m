@@ -705,9 +705,9 @@ static CGFloat velocityRatio = 5;
 #pragma mark - delegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    self.selectIndex?self.selectIndex(indexPath.row):nil;
+    self.selectIndex?self.selectIndex([self getRealShownIndex:indexPath.item]):nil;
     if ([self.delegate respondsToSelector:@selector(easyCollectionView:didSelectItemAtIndex:)]) {
-        [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:indexPath.row];
+        [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:[self getRealShownIndex:indexPath.item]];
     }
     
 }
