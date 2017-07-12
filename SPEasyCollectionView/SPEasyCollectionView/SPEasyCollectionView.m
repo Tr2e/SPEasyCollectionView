@@ -21,7 +21,6 @@ typedef NS_ENUM(NSInteger,SPDragDirection) {
 
 @interface SPEasyCollectionView()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 @property (nonatomic, strong) UICollectionViewFlowLayout *layout;
-@property (nonatomic, strong) UICollectionView *collectionView;
 
 // Cycle Function Part
 @property (nonatomic, strong) UIPageControl *pageControl;

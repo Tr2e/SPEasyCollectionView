@@ -43,6 +43,9 @@ typedef SPEasyCollectionView *(^SPEasyCollectionViewBackgroundColor)(UIColor *(^
 
 @interface SPEasyCollectionView : UIView
 
+// Main CollectionView
+@property (nonatomic, strong) UICollectionView *collectionView;
+
 // Timer
 @property (nonatomic, assign) BOOL needAutoScroll;
 @property (nonatomic, assign) NSTimeInterval timerInterval;
