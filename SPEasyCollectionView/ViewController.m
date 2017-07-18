@@ -63,7 +63,7 @@
 
 
 // 点击位置
-- (void)easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:(NSInteger)index{
+- (void)easyCollectionView:(UICollectionView *)collectionView didSelectItemAtIndex:(NSInteger)index{
 
     
 }

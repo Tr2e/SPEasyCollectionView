@@ -36,7 +36,7 @@ typedef SPEasyCollectionView *(^SPEasyCollectionViewBackgroundColor)(UIColor *(^
 @protocol SPEasyCollectionViewDelegate <NSObject>
 @optional
 
-- (void)easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:(NSInteger )index;
+- (void)easyCollectionView:(UICollectionView *)collectionView didSelectItemAtIndex:(NSInteger )index;
 
 @end
 

@@ -706,7 +706,7 @@ static CGFloat velocityRatio = 5;
     
     self.selectIndex?self.selectIndex([self getRealShownIndex:indexPath.item]):nil;
     if ([self.delegate respondsToSelector:@selector(easyCollectionView:didSelectItemAtIndex:)]) {
-        [self.delegate easyCollectionView:(SPEasyCollectionView *)collectionView didSelectItemAtIndex:[self getRealShownIndex:indexPath.item]];
+        [self.delegate easyCollectionView:collectionView didSelectItemAtIndex:[self getRealShownIndex:indexPath.item]];
     }
     
 }
