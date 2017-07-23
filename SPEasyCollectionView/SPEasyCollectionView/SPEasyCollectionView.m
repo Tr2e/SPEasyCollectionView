@@ -65,14 +65,6 @@ NSString  * const ReuseIdentifier = @"SPCell";
     // 修正collectionView通过xib初始化时frame不准确
     _collectionView.frame = self.bounds;
     
-    // register cell
-    if (_cellClassName) {
-        [_collectionView registerClass:NSClassFromString(_cellClassName) forCellWithReuseIdentifier:ReuseIdentifier];
-    }
-    if (_xibName) {// xib
-        [_collectionView registerNib:[UINib nibWithNibName:_xibName bundle:nil] forCellWithReuseIdentifier:ReuseIdentifier];
-    }
-    
     // space
     _layout.minimumLineSpacing = _minLineSpace?_minLineSpace:0;
     _layout.minimumInteritemSpacing = _minInterItemSpace?_minInterItemSpace:0;
@@ -222,6 +214,15 @@ NSString  * const ReuseIdentifier = @"SPCell";
     _layout.scrollDirection = (UICollectionViewScrollDirection)scrollDirection;
 }
 
+- (void)setCellClassName:(NSString *)cellClassName{
+    _cellClassName = cellClassName;
+    [_collectionView registerClass:NSClassFromString(_cellClassName) forCellWithReuseIdentifier:ReuseIdentifier];
+}
+
+- (void)setXibName:(NSString *)xibName{
+    _xibName = xibName;
+    [_collectionView registerNib:[UINib nibWithNibName:_xibName bundle:nil] forCellWithReuseIdentifier:ReuseIdentifier];
+}
 
 #pragma mark - main view
 - (void)initializeMainView{
