@@ -13,6 +13,8 @@
 
 ### 特别需要注意的是 因为将reload方法绑定在Setdata方法中执行而且storyboard特殊的执行顺序，所以希望务必将`xx.datas = @[]`放在配置参数最后调用
 
+### 如果使用这个封装的话，请将你的CollectionViewCell或者你的ReuseView 都继承自`SPBase`
+
 ### 20170724：添加CollectionView中`SupplementaryView`的支持 更新具体Api如下
 ```
 // Register Header
