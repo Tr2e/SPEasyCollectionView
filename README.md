@@ -13,7 +13,7 @@
 
 ### 特别需要注意的是 因为将reload方法绑定在Setdata方法中执行而且storyboard特殊的执行顺序，所以希望务必将`xx.datas = @[]`放在配置参数最后调用
 
-### 20170724 添加CollectionView中`SupplementaryView`的支持 更新具体Api如下
+### 20170724：添加CollectionView中`SupplementaryView`的支持 更新具体Api如下
 ```
 // Register Header
 @property (nonatomic, copy) NSString *headerXibName;
