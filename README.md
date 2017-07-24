@@ -26,3 +26,4 @@
 // Footer Size
 @property (nonatomic, assign) CGSize footerSize;
 ```
+![SupplementaryView](https://github.com/Tr2e/SPEasyCollectionView/raw/master/supplement.png)
