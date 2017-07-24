@@ -20,6 +20,7 @@
 		044888571E964F47007EC616 /* EasyCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 044888561E964F47007EC616 /* EasyCell.m */; };
 		044BDFA51E974A0700A8F742 /* TestCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 044BDFA41E974A0700A8F742 /* TestCell.m */; };
 		044BDFA91E97614400A8F742 /* EasyTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 044BDFA81E97614400A8F742 /* EasyTools.m */; };
+		045704601F260153007D58BA /* SPBaseReusableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0457045F1F260153007D58BA /* SPBaseReusableView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,8 @@
 		044BDFA41E974A0700A8F742 /* TestCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestCell.m; sourceTree = "<group>"; };
 		044BDFA71E97614400A8F742 /* EasyTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyTools.h; sourceTree = "<group>"; };
 		044BDFA81E97614400A8F742 /* EasyTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyTools.m; sourceTree = "<group>"; };
+		0457045E1F260153007D58BA /* SPBaseReusableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPBaseReusableView.h; sourceTree = "<group>"; };
+		0457045F1F260153007D58BA /* SPBaseReusableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SPBaseReusableView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +112,8 @@
 			isa = PBXGroup;
 			children = (
 				044BDFA61E97614400A8F742 /* Easytools */,
+				0457045E1F260153007D58BA /* SPBaseReusableView.h */,
+				0457045F1F260153007D58BA /* SPBaseReusableView.m */,
 				044888471E963706007EC616 /* SPEasyCollectionView.h */,
 				044888481E963706007EC616 /* SPEasyCollectionView.m */,
 				0448884E1E963C59007EC616 /* SPBaseCell.h */,
@@ -199,6 +204,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				045704601F260153007D58BA /* SPBaseReusableView.m in Sources */,
 				044888501E963C59007EC616 /* SPBaseCell.m in Sources */,
 				044BDFA91E97614400A8F742 /* EasyTools.m in Sources */,
 				044888371E9636C8007EC616 /* ViewController.m in Sources */,

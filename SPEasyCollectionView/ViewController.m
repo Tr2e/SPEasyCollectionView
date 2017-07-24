@@ -39,7 +39,6 @@
     for (NSInteger i = 0; i < 40; i++) {
         [datasM addObject:[NSString stringWithFormat:@"%ld",i]];
     }
-    _storyboardTest.datas = [datasM copy];
     _storyboardTest.canEdit = YES;
     
     // chain calls
@@ -58,6 +57,9 @@
     }).sp_backgroundColor(^UIColor *{
         return [UIColor colorWithRed:173/255.0 green:216/255.0 blue:230/255.0 alpha:1];
     });//LightBLue 			#ADD8E6	173,216,230
+    
+    
+    _storyboardTest.datas = [datasM copy];
     
 }
 

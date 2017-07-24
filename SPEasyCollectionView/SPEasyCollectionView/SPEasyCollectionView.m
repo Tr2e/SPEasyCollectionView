@@ -7,6 +7,7 @@
 //
 
 #import "SPEasyCollectionView.h"
+#import "SPBaseReusableView.h"
 #import "SPBaseCell.h"
 #import "EasyTools.h"
 
@@ -41,9 +42,12 @@ typedef NS_ENUM(NSInteger,SPDragDirection) {
 @property (nonatomic, strong) UIView *snapViewForActiveCell;
 @property (nonatomic, assign) CGFloat changeRatio;
 
+
 @end
 
-NSString  * const ReuseIdentifier = @"SPCell";
+NSString * const ReuseIdentifier = @"SPCell";
+NSString * const SectionHeaderIdentifier = @"SectionHeader";
+NSString * const SectionFooterIdentifier = @"SectionFooter";
 
 @implementation SPEasyCollectionView
 
@@ -60,14 +64,14 @@ NSString  * const ReuseIdentifier = @"SPCell";
     [self initializeMainView];
 }
 
+
+
 - (void)layoutSubviews{
     
     // 修正collectionView通过xib初始化时frame不准确
     _collectionView.frame = self.bounds;
     
-    // space
-    _layout.minimumLineSpacing = _minLineSpace?_minLineSpace:0;
-    _layout.minimumInteritemSpacing = _minInterItemSpace?_minInterItemSpace:0;
+    //
     
     // backgroundColor
     self.collectionView.backgroundColor = self.backgroundColor?_backgroundColor:[UIColor whiteColor];
@@ -150,6 +154,48 @@ NSString  * const ReuseIdentifier = @"SPCell";
     };
 }
 
+- (SPEasyCollectionViewHeaderXibName)sp_headerXibName{
+    return ^SPEasyCollectionView *(NSString *(^headerXibName)()){
+        self.headerXibName = headerXibName();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewHeaderClassName)sp_headerClassName{
+    return ^SPEasyCollectionView *(NSString *(^headerClassName)()){
+        self.headerClassName = headerClassName();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewFooterXibName)sp_footerXibName{
+    return ^SPEasyCollectionView *(NSString *(^footerXibName)()){
+        self.headerXibName = footerXibName();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewFooterClassName)sp_footerClassName{
+    return ^SPEasyCollectionView *(NSString *(^footerClassName)()){
+        self.footerClassName = footerClassName();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewHeaderSize)sp_headersize{
+    return ^SPEasyCollectionView *(CGSize(^headerSize)()){
+        self.headerSize = headerSize();
+        return self;
+    };
+}
+
+- (SPEasyCollectionViewFooterSize)sp_footersize{
+    return ^SPEasyCollectionView *(CGSize(^footerSize)()){
+        self.footerSize = footerSize();
+        return self;
+    };
+}
+
 #pragma mark - properties
 
 - (void)setCanEdit:(BOOL)canEdit{
@@ -174,11 +220,18 @@ NSString  * const ReuseIdentifier = @"SPCell";
 - (void)setDatas:(NSArray *)datas{
     _datas = datas;
     
+//    if (self.collectionView.canLoadMore) {
+//        self.collectionView.sp_datas = [datas mutableCopy];
+//    }
+    
     _totalItemCount = _needAutoScroll?datas.count * 500:datas.count;
     if (_needAutoScroll) {
         [self setupPageControl];
     }
-    [self.collectionView reloadData];
+    [UIView performWithoutAnimation:^{
+        [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+    }];
+    
 }
 
 - (void)setItemSize:(CGSize)itemSize{
@@ -188,10 +241,12 @@ NSString  * const ReuseIdentifier = @"SPCell";
 
 - (void)setMinInterItemSpace:(NSInteger)minInterItemSpace{
     _minInterItemSpace = minInterItemSpace;
+    _layout.minimumInteritemSpacing = _minInterItemSpace?_minInterItemSpace:0;
 }
 
 - (void)setMinLineSpace:(NSInteger)minLineSpace{
     _minLineSpace = minLineSpace;
+    _layout.minimumLineSpacing = _minLineSpace?_minLineSpace:0;
 }
 
 - (void)setBounces:(BOOL)bounces{
@@ -224,13 +279,42 @@ NSString  * const ReuseIdentifier = @"SPCell";
     [_collectionView registerNib:[UINib nibWithNibName:_xibName bundle:nil] forCellWithReuseIdentifier:ReuseIdentifier];
 }
 
+- (void)setHeaderXibName:(NSString *)headerXibName{
+    _headerXibName = headerXibName;
+    [_collectionView registerNib:[UINib nibWithNibName:headerXibName bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:SectionHeaderIdentifier];
+}
+
+- (void)setHeaderClassName:(NSString *)headerClassName{
+    _headerClassName = headerClassName;
+    [_collectionView registerClass:NSClassFromString(headerClassName) forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:SectionHeaderIdentifier];
+}
+
+- (void)setFooterXibName:(NSString *)footerXibName{
+    _footerXibName = footerXibName;
+    [_collectionView registerNib:[UINib nibWithNibName:footerXibName bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:SectionFooterIdentifier];
+}
+
+- (void)setFooterClassName:(NSString *)footerClassName{
+    _footerClassName = footerClassName;
+    [_collectionView registerClass:NSClassFromString(footerClassName) forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:SectionFooterIdentifier];
+}
+
+- (void)setHeaderSize:(CGSize)headerSize{
+    _headerSize = headerSize;
+    _layout.headerReferenceSize = headerSize;
+}
+
+- (void)setFooterSize:(CGSize)footerSize{
+    _footerSize = footerSize;
+    _layout.footerReferenceSize = footerSize;
+}
+
 #pragma mark - main view
 - (void)initializeMainView{
     
     // layout
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.scrollDirection = _scrollDirection?UICollectionViewScrollDirectionVertical:UICollectionViewScrollDirectionHorizontal;
-
     _layout = layout;
     
     // collectionview
@@ -252,8 +336,8 @@ NSString  * const ReuseIdentifier = @"SPCell";
     UIPageControl *pageControl = [[UIPageControl alloc] init];
     pageControl.hidden = YES;
     pageControl.numberOfPages = _datas.count;
-    pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
-    pageControl.pageIndicatorTintColor = [UIColor lightGrayColor];
+    pageControl.currentPageIndicatorTintColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
+    pageControl.pageIndicatorTintColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.8];
     pageControl.userInteractionEnabled = NO;
     pageControl.currentPage = [self getRealShownIndex:[self currentIndex]];
     _pageControl = pageControl;
@@ -684,22 +768,37 @@ static CGFloat velocityRatio = 5;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    
     return _totalItemCount;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
 
     SPBaseCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:ReuseIdentifier forIndexPath:indexPath];
-    cell.data = self.datas[_needAutoScroll?[self getRealShownIndex:indexPath.item]:indexPath.item];
+//    if (self.sp_datas.count) {
+//        cell.data = collectionView.sp_datas[_needAutoScroll?[self getRealShownIndex:indexPath.item]:indexPath.item];
+//    }else{
+        cell.data = self.datas[_needAutoScroll?[self getRealShownIndex:indexPath.item]:indexPath.item];
+//    }
     
     return cell;
 
 }
 
 - (NSInteger)getRealShownIndex:(NSInteger)index{
-
     return index%_datas.count;
-    
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
+    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        SPBaseReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:SectionFooterIdentifier forIndexPath:indexPath];
+        view.datas = self.sectionDatas[indexPath.section];
+        return view;
+    }else{
+        SPBaseReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:SectionHeaderIdentifier forIndexPath:indexPath];
+        view.datas = self.sectionDatas[indexPath.section];
+        return view;
+    }
 }
 
 #pragma mark - delegate
@@ -709,12 +808,6 @@ static CGFloat velocityRatio = 5;
     if ([self.delegate respondsToSelector:@selector(easyCollectionView:didSelectItemAtIndex:)]) {
         [self.delegate easyCollectionView:collectionView didSelectItemAtIndex:[self getRealShownIndex:indexPath.item]];
     }
-    
-}
-
-- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
-
-    return nil;
     
 }
 
