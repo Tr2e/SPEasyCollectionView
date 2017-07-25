@@ -12,8 +12,10 @@
 ![cycle_pic.gif](http://upload-images.jianshu.io/upload_images/1742463-c85b0fdeb9160592.gif?imageMogr2/auto-orient/strip)
 
 使用示例：
+** 链式 **
 ```
-CGRect contentframe = self.centerContentView.bounds;
+    // 基本样式
+    CGRect contentframe = self.centerContentView.bounds;
     CGFloat itemWidth = (contentframe.size.height - 3*itemMargin)/4.0;
     CGSize itemSize = CGSizeMake(itemWidth, itemWidth);
     
@@ -41,6 +43,20 @@ CGRect contentframe = self.centerContentView.bounds;
     
     [self.centerContentView addSubview:brandSelect];
     self.brandSelectView = brandSelect;
+```
+** 普通 **
+```
+    // 代码创建 轮播
+    SPEasyCollectionView *easyView = [[SPEasyCollectionView alloc] 
+    initWithFrame:CGRectMake(0, 20, [UIScreen mainScreen].bounds.size.width, 200)];
+    easyView.delegate = self;
+    easyView.itemSize = CGSizeMake([UIScreen mainScreen].bounds.size.width, 200);
+    easyView.scrollDirection = SPEasyScrollDirectionHorizontal;
+    easyView.xibName = @"EasyCell";
+    easyView.needAutoScroll = YES;
+    easyView.datas = @[@"1",@"2",@"3",@"4"];
+    easyView.minLineSpace = 0;//务必设置此参数，否则会造成轮播后期偏移误差
+    [self.view addSubview:easyView];
 ```
 
 ### 特别需要注意的是 因为将reload方法绑定在Setdata方法中执行而且storyboard特殊的执行顺序，所以希望务必将`xx.datas = @[]`放在配置参数最后调用
