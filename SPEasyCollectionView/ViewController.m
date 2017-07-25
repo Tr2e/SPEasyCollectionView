@@ -28,6 +28,7 @@
     easyView.xibName = @"EasyCell";
     easyView.needAutoScroll = YES;
     easyView.datas = @[@"1",@"2",@"3",@"4"];
+    easyView.minLineSpace = 0;//务必设置此参数，否则会造成轮播后期偏移误差
     [self.view addSubview:easyView];
     
     // storyboard
