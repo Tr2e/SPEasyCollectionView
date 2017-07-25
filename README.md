@@ -12,7 +12,8 @@
 ![cycle_pic.gif](http://upload-images.jianshu.io/upload_images/1742463-c85b0fdeb9160592.gif?imageMogr2/auto-orient/strip)
 
 使用示例：
-** 链式 **
+
+<strong> 链式 </strong>
 ```
     // 基本样式
     CGRect contentframe = self.centerContentView.bounds;
@@ -44,7 +45,7 @@
     [self.centerContentView addSubview:brandSelect];
     self.brandSelectView = brandSelect;
 ```
-** 普通 **
+<strong> 普通 </strong>
 ```
     // 代码创建 轮播
     SPEasyCollectionView *easyView = [[SPEasyCollectionView alloc] 
