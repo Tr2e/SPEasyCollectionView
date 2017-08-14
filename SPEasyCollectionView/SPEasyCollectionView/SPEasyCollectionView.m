@@ -333,6 +333,10 @@ NSString * const SectionFooterIdentifier = @"SectionFooter";
 #pragma mark - Page Control
 - (void)setupPageControl{
 
+    if (_pageControl) {
+        return;
+    }
+    
     UIPageControl *pageControl = [[UIPageControl alloc] init];
     pageControl.hidden = YES;
     pageControl.numberOfPages = _datas.count;
