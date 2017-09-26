@@ -218,6 +218,9 @@ NSString * const SectionFooterIdentifier = @"SectionFooter";
 }
 
 - (void)setDatas:(NSArray *)datas{
+    if (_datas == datas) {
+        return;
+    }
     _datas = datas;
     
 //    if (self.collectionView.canLoadMore) {
