@@ -61,10 +61,15 @@ NSString * const SectionFooterIdentifier = @"SectionFooter";
 
 - (void)awakeFromNib{
     [super awakeFromNib];
-    [self initializeMainView];
+//    [self initializeMainView];
 }
 
-
+- (instancetype)initWithCoder:(NSCoder *)aDecoder{
+    if (self = [super initWithCoder:aDecoder]) {
+        [self initializeMainView];
+    }
+    return self;
+}
 
 - (void)layoutSubviews{
     
